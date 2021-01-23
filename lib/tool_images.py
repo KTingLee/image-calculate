@@ -14,8 +14,8 @@ def blurImage (image):
   return cv2.GaussianBlur(image, (5, 5), 0)
 
 # 銳利化圖片
-def edgedImage (image):
-  return cv2.Canny(image, 30, 150)
+def edgedImage (image, threshold1 = 30, threshold2 = 150):
+  return cv2.Canny(image, threshold1, threshold2)
 
 # 圖片膨脹
 def dilateImage (image, level = (3, 3)):
@@ -23,32 +23,18 @@ def dilateImage (image, level = (3, 3)):
   return cv2.dilate(image, level, iterations = 1)
 
 # 獲得字元外盒
-def getCharBox (image):
+def getCharBox (image, minW = 15, minH = 15):
 
-  def getBoundingBox (contours):
+  def setBoundingBox (contours):
     box = []
     for cnt in contours:
       (x, y, w, h) = cv2.boundingRect(cnt)
       # NOTE: 字元有一定大小，所以其盒子寬高也有基本門檻值
-      if w > 15 and h > 15:
+      if w > minW and h > minH:
         box.append((x, y, w, h))
     #     cv2.rectangle(image, (x, y), (x + w, y + h), (127, 255, 0), 2)  # 依照contour畫邊界
     # cv2.imshow('test', image)
-
     return box
-
-  def plotCountour (contours):
-    row = 2
-    col = math.ceil(len(contours)/row)
-    for i, cnt in enumerate(contours, start = 1):
-      x = []
-      y = []
-      # plt.subplot(row, col, i)
-      for point in cnt:
-        x.append(point[0][0])
-        y.append(point[0][1])
-      plt.plot(x, y)
-    plt.show()
 
   def removeInnerBox (boxes):
     # 對各個字元的外盒，依照 x 大小排列
@@ -62,10 +48,28 @@ def getCharBox (image):
     return results
 
   contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-  # plotCountour(contours)
-  boundingBox = getBoundingBox(contours)
+  boundingBox = setBoundingBox(contours)
   boundingBox = removeInnerBox(boundingBox)
   return boundingBox
+
+def showCharBox (image, boxes):
+  for x, y, w, h in boxes:
+    cv2.rectangle(image, (x, y), (x + w, y + h), (127, 255, 0), 2)  # 依照contour畫邊界
+    cv2.imshow('charBox', image)
+    cv2.waitKey(0)
+
+def showCountour (contours):
+  row = 2
+  col = math.ceil(len(contours)/row)
+  for i, cnt in enumerate(contours, start = 1):
+    x = []
+    y = []
+    # plt.subplot(row, col, i)
+    for point in cnt:
+      x.append(point[0][0])
+      y.append(point[0][1])
+    plt.plot(x, y)
+  plt.show()
 
 def resizeImage (image, charBox, size = (50, 50)):
   results = []
