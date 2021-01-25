@@ -84,51 +84,22 @@ def diffPictures (picA, picB):
   err /= float(picA.shape[0] * picA.shape[1])
   return err
 
-def recogChar (char):
-  minErr = 999999999
-  result = None
-  for answer in benchmarks['']:
-    if diffPictures(char, answer) < minErr:
-      minErr = diffPictures(char, answer)
-      result
-
 if __name__ == '__main__':
-  # pass
-  pic = cv2.imread('../img/0001.jpg')
-  # pic = cv2.imread(answerPath)
-  cv2.imshow('origin', pic)
-
+  pic = cv2.imread('../img2/0381.jpg')
   erosion = eraseImage(pic)
-  cv2.imshow('erosion', erosion)
-  
   blured = blurImage(erosion)
-  cv2.imshow('blured', blured)
-  
   edged = edgedImage(blured)
-  cv2.imshow('edged', edged)
-  
   dilated = dilateImage(edged)
-  cv2.imshow('dilated', dilated)
-
   charBox = getCharBox(dilated)
-
+  showCharBox(dilated, charBox)
   dilated = dilateImage(edged, (4, 4))
-  cv2.imshow('dilated2', dilated)
-
-  # for x, y, w, h in charBox:
-  #   cv2.rectangle(dilated, (x, y), (x + w, y + h), (127, 255, 0), 2)  # 依照contour畫邊界
-  # cv2.imshow('test', dilated)
-
   chars = resizeImage(dilated, charBox)
-  print(recogChar(chars))
-
-
   # input("Press Enter to continue.")
   # c = result[0][0][0][0]
   # print(c)
   # plt.plot(c)
-  # cv2.waitKey(0)
-  # cv2.destroyAllWindows()
+  cv2.waitKey(0)
+  cv2.destroyAllWindows()
 
 
   
